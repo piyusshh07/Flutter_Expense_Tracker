@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expensetracker/widgets/bottomsheet.dart';
 import 'package:expensetracker/widgets/expenseslist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,11 +15,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   DateTime _currentDate = DateTime.now();
   String _formattedDate = DateFormat('d MMM y').format(DateTime.now());
+  double totalIncome = 0.0;
+  double totalExpense = 0.0;
+  double totalBalance = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateTotals();
+  }
 
   void _updateDate() {
     setState(() {
       _formattedDate = DateFormat('d MMM y').format(_currentDate);
-      print('Updated date: $_formattedDate');  // Debugging print
     });
   }
 
@@ -35,6 +44,44 @@ class _HomeScreenState extends State<HomeScreen> {
       _updateDate();
     });
   }
+
+  Future<void> _calculateTotals() async {
+    var user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    var querySnapshot = await FirebaseFirestore.instance
+        .collection('expense')
+        .where('Userid', isEqualTo: user.uid)
+        .get();
+
+    double income = 0.0;
+    double expense = 0.0;
+
+    for (var doc in querySnapshot.docs) {
+      var data = doc.data() as Map<String, dynamic>;
+
+      try {
+        double amount = double.parse(data['ExpenseAmount']);
+        String type = data['ExpenseType']; // Assuming 'type' is 'income' or 'expense'
+
+        if (type == 'Income') {
+          income += amount;
+        } else if (type == 'Expense') {
+          expense += amount;
+        }
+      } catch (e) {
+        print("Error parsing ExpenseAmount: ${data['ExpenseAmount']}");
+        // Optionally, handle the error, e.g., by logging or showing a message to the user
+      }
+    }
+
+    setState(() {
+      totalIncome = income;
+      totalExpense = expense;
+      totalBalance = income - expense;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
             isScrollControlled: true,
             context: context,
             builder: (BuildContext context) => bottomsheet(),
-          );
+          ).then((_) => _calculateTotals()); // Recalculate totals when the bottom sheet is closed
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.blueAccent,
@@ -95,7 +142,36 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          SizedBox(height: 0,),
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 0, right: 3, left: 3),
+            child: Container(
+              height: 50,
+              width: double.infinity,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Column(
+                    children: [
+                      Text("INCOME", style: TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.w600)),
+                      Text(totalIncome.toString(), style: TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.w600))
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text("EXPENSE", style: TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.w600)),
+                      Text(totalExpense.toString(), style: TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.w600))
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text("BALANCE", style: TextStyle(color: Colors.black, fontSize: 13, fontWeight: FontWeight.w600)),
+                      Text(totalBalance.toString(), style: TextStyle(color: Colors.black, fontSize: 13, fontWeight: FontWeight.w600))
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
           Expanded(  // Make sure the list expands properly
             child: ExpensesList(date: _currentDate),
           ),

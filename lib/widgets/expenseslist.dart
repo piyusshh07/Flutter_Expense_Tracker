@@ -32,11 +32,18 @@ class ExpensesList extends StatelessWidget {
     }
     if (!listSnapshots.hasData || listSnapshots.data!.docs.isEmpty) {
      print('No expenses found');  // Debugging print
-     return const Center(child: Text("No expenses found"));
+     return   Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+      Opacity(
+          opacity:0.5,
+          child: Image.asset("assets/images/wallet.png",height: 100,width: 100,)),
+       SizedBox(height: 10,),
+       Text("No Expenses Found For the Day Try Adding Some..!!")
+     ],);
     }
 
     final listofexpenses = listSnapshots.data!.docs;
-    print('Expenses found: ${listofexpenses.length}');  // Debugging print
     return ListView.builder(
      itemCount: listofexpenses.length,
      itemBuilder: (ctx, index) {
