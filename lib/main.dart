@@ -33,7 +33,8 @@ class MyApp extends StatelessWidget {
          return HomeScreen();
        }
        return Authscreen();
-      } ,)
+      } ,
+      )
     );
   }
 }

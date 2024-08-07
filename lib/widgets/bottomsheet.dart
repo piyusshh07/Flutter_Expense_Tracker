@@ -295,10 +295,10 @@ class _bottomsheetState extends State<bottomsheet> {
                       SizedBox(height: 20,),
                        (_issaving) ? CircularProgressIndicator() :
                         Container( width: 400,child: ElevatedButton(
-                          onPressed: submitdata, child: Text("Add Expense"),
+                          onPressed: submitdata, child: Text("Add Transaction"),
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blueAccent,
-                              foregroundColor: Colors.black54),
+                              foregroundColor: Colors.black),
                         )
                         ),
                     ],

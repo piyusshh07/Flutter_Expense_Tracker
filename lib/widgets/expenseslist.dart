@@ -9,7 +9,7 @@ class ExpensesList extends StatelessWidget {
  final DateTime date;
 
  @override
- Widget build(BuildContext context) {
+ Widget build(BuildContext context){
   var user = FirebaseAuth.instance.currentUser;
   DateTime startOfDay = DateTime(date.year, date.month, date.day, 0, 0, 0);
   DateTime endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);

@@ -10,6 +10,7 @@ enum Category {
   Investments,
   Rent,
   Salary,
+  shopping,
   Other,
 }
 
@@ -24,6 +25,7 @@ const Categoryicons = {
   Category.Rent: Icons.monetization_on_rounded,
   Category.Salary: Icons.currency_rupee,
   Category.Other: Icons.menu,
+  Category.shopping : Icons.shopping_cart_outlined,
 };
 //Convert Category to String
 String categoryToString(Category category) => category.toString().split('.').last;
